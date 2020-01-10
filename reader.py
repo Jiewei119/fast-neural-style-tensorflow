@@ -1,13 +1,16 @@
 from os import listdir
 from os.path import isfile, join
 import tensorflow as tf
+import base64
 
-
-def get_image(path, height, width, preprocess_fn):
-    png = path.lower().endswith('png')
-    img_bytes = tf.read_file(path)
-    image = tf.image.decode_png(img_bytes, channels=3) if png else tf.image.decode_jpeg(img_bytes, channels=3)
-    return preprocess_fn(image, height, width)
+def get_image(path, preprocess_fn):
+    # png = path.lower().endswith('png')
+    # img_bytes = tf.read_file(path)
+    # image = tf.image.decode_png(img_bytes, channels=3) if png else tf.image.decode_jpeg(img_bytes, channels=3)
+    base64_tensor = tf.convert_to_tensor(path, dtype=tf.string)
+    input_str = tf.decode_base64(base64_tensor)
+    image = tf.image.decode_jpeg(input_str)
+    return preprocess_fn(image, 400, 500)
 
 
 def image(batch_size, height, width, path, preprocess_fn, epochs=2, shuffle=True):
